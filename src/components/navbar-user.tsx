@@ -26,7 +26,8 @@ export function NavbarUser() {
         const sb = createClient();
         const { data: { user } } = await sb.auth.getUser();
         if (!user) { if (alive) setLoaded(true); return; }
-        const { data: row } = await sb.from("profiles").select("first_name,last_name").eq("id", user.id).single();
+        const res = await sb.from("profiles").select("first_name,last_name").eq("id", user.id).single();
+        const row = res.data as { first_name: string; last_name: string } | null;
         if (alive) {
           setMe({
             email: user.email ?? "",

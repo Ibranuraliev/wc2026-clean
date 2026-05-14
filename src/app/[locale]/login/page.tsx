@@ -12,7 +12,7 @@ import { AuthShell, Field, SubmitButton } from "@/components/auth-form";
 function errMsg(k: ValidationKey | null, t: ReturnType<typeof strings>): string | undefined {
   if (!k) return undefined;
   const key = `err_${k}` as const;
-  return (t as any)[key] ?? k;
+  return (t as unknown as Record<string, string>)[key] ?? k;
 }
 
 export default function LoginPage() {

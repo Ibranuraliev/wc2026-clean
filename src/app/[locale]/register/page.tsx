@@ -14,7 +14,7 @@ import { AuthShell, Field, SubmitButton } from "@/components/auth-form";
 
 function errMsg(k: ValidationKey | null, t: ReturnType<typeof strings>): string | undefined {
   if (!k) return undefined;
-  return (t as any)[`err_${k}`] ?? k;
+  return (t as unknown as Record<string, string>)[`err_${k}`] ?? k;
 }
 
 export default function RegisterPage() {
@@ -68,15 +68,14 @@ export default function RegisterPage() {
     if (userId) {
       const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
       try {
-        await sb.from("profiles").upsert(
-          {
-            id: userId,
-            first_name: firstName.trim(),
-            last_name: lastName.trim(),
-            display_name: fullName,
-          },
-          { onConflict: "id" }
-        );
+        const upsertData = {
+          id: userId,
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          display_name: fullName,
+        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (sb.from("profiles") as any).upsert(upsertData, { onConflict: "id" });
       } catch {
         /* not fatal */
       }

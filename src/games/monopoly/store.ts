@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { BOARD, KICKOFF_BONUS, RED_CARD_FINE, RED_CARD_INDEX, STARTING_CASH, isCountry, tileAt } from "./board";
+import { KICKOFF_BONUS, RED_CARD_FINE, RED_CARD_INDEX, STARTING_CASH, isCountry, tileAt } from "./board";
 import { MATCH_EVENT_CARDS } from "./cards";
 import type { Avatar, GamePhase, LandingEvent, MatchEventCard, Player, Tile } from "./types";
 import { sfxBoo, sfxBuy, sfxCardDraw, sfxFanfare, sfxGoal, sfxRedCard, sfxWhistle, sfxYellowCard } from "./sounds";
@@ -318,7 +318,7 @@ export const useMonopolyStore = create<GameState>()((set, get) => ({
     const cur = getCurrentPlayer(s);
     const eff = card.effect;
     let players = [...s.players];
-    let log: GameLogEntry[] = [];
+    const log: GameLogEntry[] = [];
 
     function update(id: string, fn: (p: Player) => Player) {
       players = players.map((p) => (p.id === id ? fn(p) : p));

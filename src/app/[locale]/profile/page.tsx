@@ -15,7 +15,7 @@ import { Field, SubmitButton } from "@/components/auth-form";
 
 function errMsg(k: ValidationKey | null, t: ReturnType<typeof strings>): string | undefined {
   if (!k) return undefined;
-  return (t as any)[`err_${k}`] ?? k;
+  return (t as unknown as Record<string, string>)[`err_${k}`] ?? k;
 }
 
 interface Profile {
@@ -23,6 +23,8 @@ interface Profile {
   first_name: string;
   last_name: string;
 }
+
+type ProfileRow = { first_name: string; last_name: string };
 
 export default function ProfilePage() {
   const locale = useLocale();
@@ -54,7 +56,8 @@ export default function ProfilePage() {
         router.push(`/${locale}/login`);
         return;
       }
-      const { data: row } = await sb.from("profiles").select("first_name, last_name").eq("id", user.id).single();
+      const res = await sb.from("profiles").select("first_name, last_name").eq("id", user.id).single();
+      const row = res.data as ProfileRow | null;
       const p: Profile = {
         email: user.email ?? "",
         first_name: row?.first_name ?? "",
@@ -83,11 +86,13 @@ export default function ProfilePage() {
     const sb = createClient();
     const { data: { user } } = await sb.auth.getUser();
     if (!user) { setNameBusy(false); return; }
-    await sb.from("profiles").update({
+    const updateData = {
       first_name: firstName.trim(),
       last_name:  lastName.trim(),
       display_name: `${firstName.trim()} ${lastName.trim()}`.trim(),
-    }).eq("id", user.id);
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (sb.from("profiles") as any).update(updateData).eq("id", user.id);
     setNameBusy(false);
     setNameOk(true);
     setTimeout(() => setNameOk(false), 2500);

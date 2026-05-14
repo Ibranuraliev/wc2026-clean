@@ -19,7 +19,7 @@ import { MusicPlayer } from "@/components/music-player";
 import { NavbarUser } from "@/components/navbar-user";
 import { ThirdPlacePicker } from "@/components/third-place-picker";
 import { WC2026_TEAMS } from "@/data/wc2026-teams";
-import { strings, teamName } from "@/i18n/page-strings";
+import { strings } from "@/i18n/page-strings";
 
 const GroupCard = dynamic(() => import("@/components/group-card").then((m) => m.GroupCard), {
   ssr: false, loading: () => <div className="h-[220px] rounded bg-surface animate-pulse" />,
@@ -65,18 +65,6 @@ function Navbar() {
   );
 }
 
-function TeamChip({ id, size="sm" }: { id: number|null; size?: "sm"|"lg" }) {
-  const locale = useLocale();
-  const team = usePredictionStore((s) => s.teams.find((t) => t.id === id));
-  if (!team) return <span className="text-muted/50 text-xs">—</span>;
-  return (
-    <span className={`inline-flex items-center gap-2 ${size==="lg"?"text-xl":"text-sm"}`}>
-      <CountryFlag code={team.code} size={size === "lg" ? 24 : 16} />
-      <span className="font-medium text-fg">{teamName(team, locale)}</span>
-    </span>
-  );
-}
-
 export default function Page() {
   const locale = useLocale();
   const t = strings(locale);
@@ -108,7 +96,8 @@ export default function Page() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    await supabase.from("predictions").upsert({ user_id: user.id, groups, bracket: usePredictionStore.getState().bracket }, { onConflict: "user_id" });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await supabase.from("predictions").upsert({ user_id: user.id, groups: groups as unknown as import("@/types/supabase").Json, bracket: usePredictionStore.getState().bracket as unknown as import("@/types/supabase").Json } as any, { onConflict: "user_id" });
     resetDirty();
   }, [groups, resetDirty]);
 

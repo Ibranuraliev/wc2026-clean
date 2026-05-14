@@ -12,8 +12,6 @@ export function ActionPanel() {
   const event = useMonopolyStore((s) => s.pendingEvent);
   const drawn = useMonopolyStore((s) => s.drawnCard);
   const winnerId = useMonopolyStore((s) => s.winnerId);
-  const ownership = useMonopolyStore((s) => s.ownership);
-
   const rollDice = useMonopolyStore((s) => s.rollDice);
   const buy = useMonopolyStore((s) => s.buyCurrentTile);
   const decline = useMonopolyStore((s) => s.declineBuy);
