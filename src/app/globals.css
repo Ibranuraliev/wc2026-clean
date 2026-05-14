@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 250 250 250;
+  --surface: 255 255 255;
+  --fg: 10 10 10;
+  --muted: 100 116 139;
+  --line: 15 23 42;
+  --pitch: 0 177 64;
+  --accent: 61 220 132;
+
+  /* shadcn/ui variables */
+  --background: 0 0% 98%;
+  --foreground: 0 0% 4%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 4%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 4%;
+  --primary: 142 72% 29%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 142 72% 29%;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --bg: 10 10 10;
+  --surface: 20 20 20;
+  --fg: 250 250 250;
+  --muted: 156 163 175;
+  --line: 255 255 255;
+
+  --background: 0 0% 4%;
+  --foreground: 0 0% 98%;
+  --card: 0 0% 8%;
+  --card-foreground: 0 0% 98%;
+  --popover: 0 0% 8%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 142 72% 45%;
+  --primary-foreground: 0 0% 4%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 98%;
+  --destructive: 0 63% 50%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 18%;
+  --input: 0 0% 18%;
+  --ring: 142 72% 45%;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: rgb(var(--bg));
+    color: rgb(var(--fg));
+    font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 200ms ease, color 200ms ease;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: #00B140;
+    color: #FAFAFA;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: rgb(var(--bg)); }
+  ::-webkit-scrollbar-thumb { background: #00B140; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3DDC84; }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .tabular-nums { font-feature-settings: "tnum"; }
+
+  .bg-pitch-stripes {
+    background-image:
+      linear-gradient(135deg, rgba(0,177,64,0.06) 0%, transparent 45%),
+      repeating-linear-gradient(
+        90deg,
+        rgb(var(--line) / 0.02) 0 80px,
+        rgb(var(--line) / 0.05) 80px 160px
+      );
+  }
+
+  .bracket-scroll::-webkit-scrollbar { display: none; height: 0; }
+  .bracket-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+
+  .tri-band {
+    background-image: linear-gradient(
+      90deg,
+      #3C3B6E 0%, #3C3B6E 33.33%,
+      #FF0000 33.33%, #FF0000 66.66%,
+      #006847 66.66%, #006847 100%
+    );
+  }
+}

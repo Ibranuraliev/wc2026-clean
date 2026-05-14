@@ -1,0 +1,107 @@
+{
+  "nav": {
+    "predict": "Predict",
+    "leagues": "Leagues",
+    "heatmap": "Stats",
+    "daily": "Daily",
+    "play": "Monopoly",
+    "profile": "Profile"
+  },
+  "home": {
+    "hero_title": "Build Your World Cup 2026 Prediction",
+    "hero_subtitle": "Predict group standings, build your knockout bracket, and compete with friends in private leagues.",
+    "cta_primary": "Start Predicting",
+    "cta_secondary": "Penalty Shootout",
+    "scroll_hint": "scroll",
+    "features_title": "Everything for the Perfect Prediction",
+    "feature_groups_title": "Group Stage",
+    "feature_groups_desc": "Drag & drop 48 teams across 12 groups and pick your winners.",
+    "feature_bracket_title": "Knockout Bracket",
+    "feature_bracket_desc": "Auto-build your bracket from group results and predict the champion.",
+    "feature_leagues_title": "Private Leagues",
+    "feature_leagues_desc": "Create a league, invite friends with a code, and track the leaderboard.",
+    "feature_heatmap_title": "Community",
+    "feature_heatmap_desc": "See who everyone else is picking as champion across all predictions.",
+    "feature_daily_title": "Daily Challenge",
+    "feature_daily_desc": "Answer one question per day about the tournament and earn points.",
+    "learn_more": "Learn more",
+    "footer_disclaimer": "Unofficial fan project. Not affiliated with FIFA."
+  },
+  "groups": {
+    "title": "Group Stage",
+    "subtitle": "Drag teams to rank them in each group",
+    "group_label": "Group",
+    "position": "Pos",
+    "continue": "Continue to Bracket",
+    "save_progress": "Save Progress",
+    "unsaved": "You have unsaved changes",
+    "login_prompt": "Log in to save your predictions"
+  },
+  "bracket": {
+    "title": "Knockout Bracket",
+    "subtitle": "Click a team to advance them to the next round",
+    "round32": "Round of 32",
+    "round16": "Round of 16",
+    "quarters": "Quarterfinals",
+    "semis": "Semifinals",
+    "final": "Final",
+    "third_place": "3rd Place Match",
+    "champion": "Champion!",
+    "continue": "See Summary"
+  },
+  "summary": {
+    "title": "My Prediction",
+    "champion": "Champion",
+    "runner_up": "Runner-Up",
+    "top4": "Top 4",
+    "dark_horses": "Dark Horses",
+    "share": "Share",
+    "copy_link": "Copy Link",
+    "link_copied": "Link copied!",
+    "ai_analysis": "AI Analysis"
+  },
+  "leagues": {
+    "title": "Leagues",
+    "create": "Create League",
+    "join": "Join by Code",
+    "code_placeholder": "Enter 6-character code",
+    "join_btn": "Join",
+    "my_leagues": "My Leagues",
+    "no_leagues": "No leagues yet. Create one or join!",
+    "leaderboard": "Leaderboard",
+    "points": "Points",
+    "member": "member",
+    "members": "members",
+    "locked": "Predictions locked"
+  },
+  "heatmap": {
+    "title": "Community Stats",
+    "subtitle": "Most popular predictions",
+    "champion_chart": "Champion Popularity",
+    "group_chart": "Group Winners",
+    "total_predictions": "Total predictions"
+  },
+  "daily": {
+    "title": "Daily Challenge",
+    "subtitle": "One question per day. Answer correctly to earn points!",
+    "submit": "Submit",
+    "correct": "Correct!",
+    "wrong": "Wrong",
+    "streak": "Streak",
+    "days": "days",
+    "come_back": "Come back tomorrow for a new question",
+    "result_pending": "Result will be revealed at end of day"
+  },
+  "penalty": {
+    "title": "Penalty Shootout",
+    "instruction": "Click a zone to shoot",
+    "score": "Score",
+    "attempt": "Attempt",
+    "of": "of",
+    "goal": "Goal!",
+    "saved": "Saved!",
+    "you_scored": "You scored",
+    "play_again": "Play Again",
+    "save_score": "Save Score"
+  }
+}
