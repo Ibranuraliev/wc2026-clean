@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -29,7 +29,14 @@ export default function RegisterPage() {
   const [confirm,   setConfirm]   = useState("");
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
+
+  // OTP step
+  const [step, setStep] = useState<"form" | "otp">("form");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otpError, setOtpError] = useState("");
+  const [otpBusy, setOtpBusy] = useState(false);
+  const [resent, setResent] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,48 +54,134 @@ export default function RegisterPage() {
     setErrors({});
     setBusy(true);
     const sb = createClient();
-    const { data, error } = await sb.auth.signUp({
+    const { error } = await sb.auth.signUp({
       email: email.trim(),
       password,
       options: {
         data: { first_name: firstName.trim(), last_name: lastName.trim() },
-        emailRedirectTo:
-          typeof window !== "undefined"
-            ? `${window.location.origin}/${locale}/auth/callback`
-            : undefined,
       },
     });
+    setBusy(false);
     if (error) {
-      setBusy(false);
       setErrors({ root: t.auth_signup_failed + " " + (error.message ?? "") });
       return;
     }
-    // Fallback: upsert profile client-side in case the DB trigger missed it.
-    const userId = data?.user?.id;
-    if (userId) {
+    setStep("otp");
+  }
+
+  function handleOtpChange(index: number, value: string) {
+    if (!/^\d*$/.test(value)) return;
+    const next = [...otp];
+    next[index] = value.slice(-1);
+    setOtp(next);
+    setOtpError("");
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  }
+
+  function handleOtpKeyDown(index: number, e: React.KeyboardEvent) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  }
+
+  function handleOtpPaste(e: React.ClipboardEvent) {
+    const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (text.length === 6) {
+      e.preventDefault();
+      setOtp(text.split(""));
+      inputRefs.current[5]?.focus();
+    }
+  }
+
+  async function verifyOtp() {
+    const code = otp.join("");
+    if (code.length < 6) return;
+    setOtpBusy(true);
+    setOtpError("");
+    const sb = createClient();
+    const { error } = await sb.auth.verifyOtp({
+      email: email.trim(),
+      token: code,
+      type: "email",
+    });
+    setOtpBusy(false);
+    if (error) {
+      setOtpError(t.auth_otp_invalid);
+      return;
+    }
+    // Upsert profile
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) {
       const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
       try {
         const upsertData = {
-          id: userId,
+          id: user.id,
           first_name: firstName.trim(),
           last_name: lastName.trim(),
           display_name: fullName,
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (sb.from("profiles") as any).upsert(upsertData, { onConflict: "id" });
-      } catch {
-        /* not fatal */
-      }
+      } catch { /* not fatal */ }
     }
-    setBusy(false);
-    setDone(true);
-    setTimeout(() => router.push(`/${locale}`), 1500);
+    router.push(`/${locale}`);
+    router.refresh();
   }
 
-  if (done) {
+  async function resendCode() {
+    setResent(false);
+    const sb = createClient();
+    await sb.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        data: { first_name: firstName.trim(), last_name: lastName.trim() },
+      },
+    });
+    setResent(true);
+    setTimeout(() => setResent(false), 3000);
+  }
+
+  // OTP screen
+  if (step === "otp") {
     return (
-      <AuthShell title={t.auth_register}>
-        <p className="text-center text-pitch font-semibold">{t.auth_check_email}</p>
+      <AuthShell title={t.auth_otp_title} subtitle={`${t.auth_otp_subtitle} ${email}`}>
+        <div className="flex justify-center gap-2 mb-4" onPaste={handleOtpPaste}>
+          {otp.map((digit, i) => (
+            <input
+              key={i}
+              ref={(el) => { inputRefs.current[i] = el; }}
+              type="text"
+              inputMode="numeric"
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleOtpChange(i, e.target.value)}
+              onKeyDown={(e) => handleOtpKeyDown(i, e)}
+              className="w-11 h-13 text-center text-2xl font-heading font-bold bg-bg border border-line/20 rounded focus:border-pitch focus:ring-1 focus:ring-pitch/30 text-fg outline-none transition-colors"
+              autoFocus={i === 0}
+            />
+          ))}
+        </div>
+
+        {otpError && (
+          <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded px-3 py-2 mb-3 text-center">
+            {otpError}
+          </p>
+        )}
+
+        <SubmitButton disabled={otpBusy || otp.join("").length < 6} onClick={verifyOtp}>
+          {otpBusy ? "..." : t.auth_otp_submit}
+        </SubmitButton>
+
+        <button
+          type="button"
+          onClick={resendCode}
+          className="w-full text-center text-xs text-muted hover:text-pitch mt-3 transition-colors"
+        >
+          {resent ? t.auth_otp_resent : t.auth_otp_resend}
+        </button>
       </AuthShell>
     );
   }
@@ -115,7 +208,7 @@ export default function RegisterPage() {
         <Field label={t.auth_password}         type="password" value={password} onChange={setPassword} error={errors.password} autoComplete="new-password" required />
         <Field label={t.auth_password_confirm} type="password" value={confirm}  onChange={setConfirm}  error={errors.confirm}  autoComplete="new-password" required />
         {errors.root && (
-          <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">{errors.root}</p>
+          <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded px-3 py-2">{errors.root}</p>
         )}
         <SubmitButton disabled={busy}>{busy ? "..." : t.auth_register_cta}</SubmitButton>
       </form>

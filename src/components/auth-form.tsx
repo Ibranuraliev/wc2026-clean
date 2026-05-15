@@ -57,11 +57,16 @@ export function AuthShell({ title, subtitle, children, footer }: {
   );
 }
 
-export function SubmitButton({ children, disabled }: { children: ReactNode; disabled?: boolean }) {
+export function SubmitButton({ children, disabled, onClick }: {
+  children: ReactNode;
+  disabled?: boolean;
+  onClick?: () => void;
+}) {
   return (
     <button
-      type="submit"
+      type={onClick ? "button" : "submit"}
       disabled={disabled}
+      onClick={onClick}
       className="w-full bg-pitch hover:bg-accent text-bg font-heading font-bold py-3 rounded-xl text-sm transition-colors shadow-[0_0_24px_-8px_rgba(0,177,64,0.7)] disabled:opacity-40 disabled:cursor-not-allowed"
     >
       {children}

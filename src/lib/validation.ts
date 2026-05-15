@@ -12,7 +12,10 @@ export type ValidationKey =
   | "passwords_dont_match"
   | "name_required"
   | "name_too_short"
-  | "name_too_long";
+  | "name_too_long"
+  | "username_too_short"
+  | "username_too_long"
+  | "username_invalid";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -36,6 +39,17 @@ export function validateName(value: string): ValidationKey | null {
   if (!v) return "name_required";
   if (v.length < 2) return "name_too_short";
   if (v.length > 50) return "name_too_long";
+  return null;
+}
+
+const USERNAME_RE = /^[a-zA-Z0-9_]+$/;
+
+export function validateUsername(value: string): ValidationKey | null {
+  const v = value.trim();
+  if (!v) return null; // optional field
+  if (v.length < 3) return "username_too_short";
+  if (v.length > 20) return "username_too_long";
+  if (!USERNAME_RE.test(v)) return "username_invalid";
   return null;
 }
 

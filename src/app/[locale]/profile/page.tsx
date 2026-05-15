@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, LogOut, User as UserIcon, KeyRound } from "lucide-react";
+import { ArrowLeft, LogOut, User as UserIcon, KeyRound, AtSign } from "lucide-react";
 import { strings } from "@/i18n/page-strings";
 import {
-  validateName, validatePassword, passwordsMatch,
+  validateName, validatePassword, validateUsername, passwordsMatch,
   type ValidationKey,
 } from "@/lib/validation";
 import { createClient } from "@/lib/supabase/client";
@@ -22,9 +22,10 @@ interface Profile {
   email: string;
   first_name: string;
   last_name: string;
+  username: string;
 }
 
-type ProfileRow = { first_name: string; last_name: string };
+type ProfileRow = { first_name: string; last_name: string; username: string | null };
 
 export default function ProfilePage() {
   const locale = useLocale();
@@ -37,6 +38,7 @@ export default function ProfilePage() {
   // Name form
   const [firstName, setFirstName] = useState("");
   const [lastName,  setLastName]  = useState("");
+  const [username,  setUsername]  = useState("");
   const [nameErrors, setNameErrors] = useState<Record<string, string | undefined>>({});
   const [nameBusy, setNameBusy] = useState(false);
   const [nameOk, setNameOk] = useState(false);
@@ -56,16 +58,18 @@ export default function ProfilePage() {
         router.push(`/${locale}/login`);
         return;
       }
-      const res = await sb.from("profiles").select("first_name, last_name").eq("id", user.id).single();
+      const res = await sb.from("profiles").select("first_name, last_name, username").eq("id", user.id).single();
       const row = res.data as ProfileRow | null;
       const p: Profile = {
         email: user.email ?? "",
         first_name: row?.first_name ?? "",
         last_name:  row?.last_name  ?? "",
+        username:   row?.username   ?? "",
       };
       setProfile(p);
       setFirstName(p.first_name);
       setLastName(p.last_name);
+      setUsername(p.username);
       setLoading(false);
     })();
   }, [locale, router]);
@@ -73,9 +77,10 @@ export default function ProfilePage() {
   async function saveName(e: React.FormEvent) {
     e.preventDefault();
     setNameOk(false);
-    const next = {
+    const next: Record<string, string | undefined> = {
       firstName: errMsg(validateName(firstName), t),
       lastName:  errMsg(validateName(lastName),  t),
+      username:  errMsg(validateUsername(username), t),
     };
     if (Object.values(next).some(Boolean)) {
       setNameErrors(next);
@@ -89,6 +94,7 @@ export default function ProfilePage() {
     const updateData = {
       first_name: firstName.trim(),
       last_name:  lastName.trim(),
+      username:   username.trim() || null,
       display_name: `${firstName.trim()} ${lastName.trim()}`.trim(),
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -146,15 +152,21 @@ export default function ProfilePage() {
         <h1 className="font-heading font-bold text-3xl text-fg mb-1">{t.auth_profile}</h1>
         <p className="text-muted text-sm mb-6">{profile.email}</p>
 
-        {/* Name card */}
+        {/* Name & username card */}
         <form onSubmit={saveName} className="bg-surface border border-line/15 rounded-2xl p-5 sm:p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <UserIcon className="w-4 h-4 text-pitch" />
             <h2 className="font-heading font-bold text-fg text-sm uppercase tracking-widest">{t.auth_profile}</h2>
           </div>
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="grid grid-cols-2 gap-3 mb-3">
             <Field label={t.auth_first_name} value={firstName} onChange={setFirstName} error={nameErrors.firstName} autoComplete="given-name" required />
             <Field label={t.auth_last_name}  value={lastName}  onChange={setLastName}  error={nameErrors.lastName}  autoComplete="family-name" required />
+          </div>
+          <div className="mb-4">
+            <Field label={t.auth_username} value={username} onChange={setUsername} error={nameErrors.username} autoComplete="username" placeholder="player_2026" />
+            <p className="text-[10px] text-muted mt-1 flex items-center gap-1">
+              <AtSign className="w-3 h-3" /> {t.auth_username_hint}
+            </p>
           </div>
           {nameOk && <p className="text-xs text-pitch mb-3">{t.auth_profile_updated}</p>}
           <SubmitButton disabled={nameBusy}>{nameBusy ? "..." : t.auth_save_changes}</SubmitButton>
